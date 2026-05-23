@@ -8,12 +8,21 @@ on:
 jobs:
   check-stock:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install requests beautifulsoup4
-      - run: python monitor.py
+
+      - name: Install packages
+        run: pip install requests beautifulsoup4
+
+      - name: Run monitor
+        run: python monitor.py
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
