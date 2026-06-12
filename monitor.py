@@ -1,6 +1,5 @@
 import os
 import json
-import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -83,12 +82,15 @@ def check_normal_product(product):
 def get_sold_out_members_for_acrylic():
     soup, text = fetch_page(ACRYLIC_PRODUCT["url"])
 
-    match = re.search(
-        r"以下のメンバーは品切れ中です。(.*?)(ご登録のPlusmember|ログイン|SHARE|$)",
-        text
-    )
+    sold_out_text = ""
 
-    sold_out_text = match.group(1) if match else ""
+    for p in soup.select("p.red"):
+        p_text = p.get_text(" ", strip=True)
+        if "以下のメンバーは品切れ中です" in p_text:
+            sold_out_text = p_text
+            break
+
+    print("Acrylic sold out text:", sold_out_text)
 
     sold_out_members = []
 
@@ -101,7 +103,6 @@ def get_sold_out_members_for_acrylic():
 def main():
     state = load_state()
 
-    # 通常商品チェック
     for product in NORMAL_PRODUCTS:
         key = "product:" + product["url"]
         current_status = check_normal_product(product)
@@ -120,7 +121,6 @@ def main():
 
         state[key] = current_status
 
-    # アクリルスタンドの指定メンバーだけチェック
     current_sold_out_members = get_sold_out_members_for_acrylic()
 
     for code, display_name in WATCH_MEMBERS.items():
